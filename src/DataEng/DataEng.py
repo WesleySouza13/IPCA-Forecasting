@@ -2,8 +2,11 @@ import requests
 import pandas as pd
 import os
 class DataEng():
-    def load(self, code:int, start_date:str):
-        url = f'https://api.bcb.gov.br/dados/serie/bcdata.sgs.{code}/dados?formato=json&dataInicial={start_date}&dataFinal=01/01/2025'
+    def load(self, code:int, start_date:str, end_date:str):
+        """"
+            para setar as datas, deve se usar o formato dia/mes/ano. Ex: 01/01/2000 - dia 1 de janeiro de 2000
+        """
+        url = f'https://api.bcb.gov.br/dados/serie/bcdata.sgs.{code}/dados?formato=json&dataInicial={start_date}&dataFinal={end_date}'
         response = requests.get(url)
         if response.status_code == 200:
             try:
