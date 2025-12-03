@@ -1,0 +1,7 @@
+as autocorrelaçoes tanto da serie normal tando do atraso mostram que a serie nao é estacionaria
+
+a sazonalidade tambem aponta isso, mostrando arrepios em certos ciclos 
+
+vou realizar um teste de portmanteu para validar a autocorrelaçao dos atrasos 
+
+nao houve significancia estatistica, provando que o residuo é dependente 
