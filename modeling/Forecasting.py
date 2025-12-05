@@ -11,6 +11,8 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from Metrics import Metrics
 import joblib
+from statsmodels.tsa.arima.model import ARIMA
+from pmdarima import auto_arima
 # %%
 # vou usar dados de 2000 até 31/12/2024 para treinar e o restante até a ultima serie para testar
 train_start = '01/01/2000'
@@ -48,43 +50,26 @@ def plot_autocorrelation(X:pd.DataFrame):
             
 # %%
 plot_autocorrelation(train)
-# %% 
-
 # %%
-drop_cols = ['data', 'valor']
-X_train = train.drop(drop_cols, axis=1)
+""""notas: apenas o primeiro lag foi significativo e capaz de passar as informaçoes e variaçoes temporais para o modelo
+irei trabalhar apenas com 1 atraso agora, e farei alguns testes
+    tirei essas conclusoes fazendo testes de forma separda
+"""
+X_train = sm.add_constant(train['lag_1'])
 y_train = train['valor']
-# %%
+# %% 
 model = sm.OLS(y_train, X_train).fit()
 print(model.summary())
 pred_train = model.predict(X_train)
-# %% 
-metrics = Metrics(pred_train, y_train).metrics()
-metrics
-# %%
-plt.plot(train['valor'], color='red', label='sinal real')
-plt.plot(pred_train, color='blue', label='predict-train')
-plt.legend()
-# %%
-""""notas: apenas o primeiro lag foi significativo e capaz de passar as informaçoes e variaçoes temporais para o modelo
-irei trabalhar apenas com 1 atraso agora, e farei alguns testes"""
-
-X_train = X_train['lag_1']
-X_train
-# %% 
-model = sm.OLS(y_train, X_train).fit()
-print(model.summary())
-new_pred_train = model.predict(X_train)
 # %%
 plt.figure('Serie real - IPCA X previsto')
 plt.figure(figsize=(10,5))
 plt.plot(y_train, label='Sinal - IPCA', color='blue')
-plt.plot(new_pred_train, color='red', label='previsao - IPCA')
+plt.plot(pred_train, color='red', label='previsao - IPCA')
 plt.tight_layout()
 plt.legend()
 plt.show()
 # %%
-
 """"
     irei calcular residuos da previsao e da serie
 """
@@ -101,7 +86,7 @@ test['lag_1'] = test['valor'].shift(1)
 test['lag_1'] = test['lag_1'].fillna(0)
 test.isnull().sum()
 # %%
-X_test = test['lag_1']
+X_test = sm.add_constant(test['lag_1'])
 y_test = test['valor']
 # %%
 y_pred = model.predict(X_test)
@@ -110,7 +95,7 @@ print(model.summary())
 # %%
 plt.figure(figsize=(10,5))
 plt.title('Serie real - IPCA X previsto teste')
-plt.plot(X_test, label='IPCA', color='blue')
+plt.plot(y_test, label='IPCA', color='blue')
 plt.plot(y_pred, label='previsto', color='red')
 plt.tight_layout()
 plt.legend()
@@ -121,7 +106,42 @@ plt.figure(figsize=(10,5))
 plt.title('residuo entre o teste e o previsto')
 plt.plot(residual_test, color='red', marker='o', linestyle='None')
 plt.show()
+# %% 
+
+""""
+    irei fazer alguns testes com modelos ARMA
+    """
+    
+#  %% 
+arima = ARIMA(y_train, order=(1,0,0), seasonal_order=(1,0,1,12), enforce_stationarity=False, enforce_invertibility=False).fit()
 # %%
-metrics_test = Metrics(y_pred, y_test).metrics()
-print(metrics_test)
+arima_prev_train = arima.predict(start=train.index[0], end=train.index[299])
+#%%
+plt.figure(figsize=(10,5))
+plt.title('Serie real - IPCA X previsto teste (ARIMA)')
+plt.plot(y_train, label='IPCA', color='blue')
+plt.plot(arima_prev_train, label='previsto - ARIMA', color='red')
+plt.tight_layout()
+plt.legend()
+plt.show()
+
+# %%
+print(arima.summary())
+test
+# %%
+# busca para paramentros 
+auto_arima(train['valor'], seasonal=True, m=12, trace=True)
+# %%
+arima_prev_test = arima.predict(start=test.index[0], end=test.index[9])
+# %%
+plt.figure(figsize=(10,5))
+plt.title('Serie real - IPCA X previsto teste (ARIMA)')
+plt.plot(y_test, label='IPCA', color='blue')
+plt.plot(arima_prev_test, label='previsto - ARIMA', color='red')
+plt.tight_layout()
+plt.legend()
+plt.show()
+# %%
+arima_path = os.path.join('..', 'ModelArima.pkl')
+joblib.dump(arima, arima_path)
 # %%
