@@ -4,12 +4,13 @@ import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), 'src'))
 sys.path.append(os.path.join(os.path.dirname(__file__), 'modeling'))
 from DataEng.DataEng import DataEng
-from sklearn.linear_model import LinearRegression
+import statsmodels.api as sm
 from statsmodels.graphics.tsaplots import plot_acf
 import seaborn as sns 
 import pandas as pd
 import matplotlib.pyplot as plt
 from Metrics import Metrics
+import joblib
 # %%
 # vou usar dados de 2000 até 31/12/2024 para treinar e o restante até a ultima serie para testar
 train_start = '01/01/2000'
@@ -58,10 +59,42 @@ drop_cols = ['data', 'valor']
 X_train = train.drop(drop_cols, axis=1)
 y_train = train['valor']
 # %%
-model = LinearRegression(n_jobs=1000).fit(X_train, y_train)
+model = sm.OLS(y_train, X_train).fit()
+print(model.summary())
 pred_train = model.predict(X_train)
 # %% 
 metrics = Metrics(pred_train, y_train).metrics()
 metrics
 # %%
+plt.plot(train['valor'], color='red', label='sinal real')
+plt.plot(pred_train, color='blue', label='predict-train')
+plt.legend()
+# %%
+""""notas: apenas o primeiro lag foi significativo e capaz de passar as informaçoes e variaçoes temporais para o modelo
+irei trabalhar apenas com 1 atraso agora, e farei alguns testes"""
 
+X_train = X_train['lag_1']
+X_train
+# %% 
+model = sm.OLS(y_train, X_train).fit()
+print(model.summary())
+new_pred_train = model.predict(X_train)
+# %%
+plt.figure('Serie real - IPCA X previsto')
+plt.figure(figsize=(10,5))
+plt.plot(y_train, label='Sinal - IPCA', color='blue')
+plt.plot(new_pred_train, color='red', label='previsao - IPCA')
+plt.tight_layout()
+plt.legend()
+plt.show()
+# %%
+
+""""
+    irei calcular residuos da previsao e da serie
+"""
+residual = (y_train-pred_train)
+plt.figure(figsize=(10,5))
+plt.title('residuo entre a serie real e o previsto')
+plt.plot(residual, color='red', marker='o', linestyle='None')
+plt.show()
+# %%
