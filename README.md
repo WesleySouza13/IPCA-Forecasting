@@ -61,6 +61,14 @@ Os resíduos obtidos a partir do uso de atrasos apresentam uma distribuição pr
 
 <img width="989" height="490" alt="image" src="https://github.com/user-attachments/assets/b31f778a-4629-4bfc-b7d3-43f50f7ba917" />
 
+# Teste de portmanteau - Ljungbox
+
+Para validar estatisticamente minhas hipóteses, apliquei o teste de portmanteau (Ljung-Box no statsmodels), obtendo p-valores consistentemente abaixo do limiar de 5%, o que confirma a presença de dependência temporal e não estacionariedade do sinal. 
+
+<img width="184" height="293" alt="image" src="https://github.com/user-attachments/assets/160d8830-f7d1-4e35-bfb2-0073a8f2ee61" />
+
+# Rodando Modelo de Minimos Quadrados
+
 
 
 
