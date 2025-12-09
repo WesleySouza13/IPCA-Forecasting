@@ -12,7 +12,12 @@ import matplotlib.pyplot as plt
 from Metrics import Metrics
 import joblib
 from statsmodels.tsa.arima.model import ARIMA
+from statsmodels.tsa.statespace.sarimax import SARIMAX
 from pmdarima import auto_arima
+from sklearn.tree import DecisionTreeRegressor
+from sklearn.ensemble import AdaBoostRegressor, HistGradientBoostingRegressor, RandomForestRegressor
+
+
 # %%
 # vou usar dados de 2000 até 31/12/2024 para treinar e o restante até a ultima serie para testar
 train_start = '01/01/2000'
@@ -58,9 +63,9 @@ irei trabalhar apenas com 1 atraso agora, e farei alguns testes
 X_train = sm.add_constant(train['lag_1'])
 y_train = train['valor']
 # %% 
-model = sm.OLS(y_train, X_train).fit()
-print(model.summary())
-pred_train = model.predict(X_train)
+model_ols = sm.OLS(y_train, X_train).fit()
+print(model_ols.summary())
+pred_train = model_ols.predict(X_train)
 # %%
 plt.figure('Serie real - IPCA X previsto')
 plt.figure(figsize=(10,5))
@@ -89,9 +94,9 @@ test.isnull().sum()
 X_test = sm.add_constant(test['lag_1'])
 y_test = test['valor']
 # %%
-y_pred = model.predict(X_test)
+y_pred = model_ols.predict(X_test)
 # %%
-print(model.summary())
+print(model_ols.summary())
 # %%
 plt.figure(figsize=(10,5))
 plt.title('Serie real - IPCA X previsto teste')
@@ -106,6 +111,8 @@ plt.figure(figsize=(10,5))
 plt.title('residuo entre o teste e o previsto')
 plt.plot(residual_test, color='red', marker='o', linestyle='None')
 plt.show()
+
+model_ols.plot_residuals()
 # %% 
 
 """"
@@ -127,7 +134,6 @@ plt.show()
 
 # %%
 print(arima.summary())
-test
 # %%
 # busca para paramentros 
 auto_arima(train['valor'], seasonal=True, m=12, trace=True)
@@ -144,4 +150,110 @@ plt.show()
 # %%
 arima_path = os.path.join('..', 'ModelArima.pkl')
 joblib.dump(arima, arima_path)
+# %%
+
+"""vou testar o modelo sarima, que lida melhor com sazonalidade """
+
+# %% 
+sarima = SARIMAX(y_train, order=(1,0,0), seasonal_order=(1,0,1,12),
+                enforce_stationarity=False, enforce_invertibility=False).fit()
+# %%
+print(sarima.summary())
+# %%
+sarima_prev_train = sarima.predict(train.index[0], train.index[299])
+
+# %%
+plt.figure(figsize=(10,5))
+plt.title('Serie real - IPCA X previsto teste (SARIMA)')
+plt.plot(y_train, label='IPCA', color='blue')
+plt.plot(sarima_prev_train, label='previsto - SARIMA', color='red')
+plt.tight_layout()
+plt.legend()
+plt.show()
+# %%
+sarima_prev_test = sarima.predict(test.index[0], test.index[9])
+
+# %%
+plt.figure(figsize=(10,5))
+plt.title('Serie real - IPCA X previsto teste (SARIMA)')
+plt.plot(y_test, label='IPCA', color='blue')
+plt.plot(sarima_prev_test, label='previsto - SARIMA', color='red')
+plt.tight_layout()
+plt.legend()
+plt.show()
+
+# %%
+auto_arima(y_train, seasonal=True, 
+        m=12,
+        trace=True, 
+        stepwise=False)
+# %%
+sarima.plot_diagnostics(figsize=(12,6))
+# %%
+print(sarima.summary())
+# %%
+
+""""
+irei fazer testes com modelos nao lineares comuns """
+
+models = {
+    'DecisionTree':DecisionTreeRegressor(random_state=42),
+    'AdaBoost': AdaBoostRegressor(random_state=42),
+    'HistGradient': HistGradientBoostingRegressor(random_state=42),
+    'RandomForest': RandomForestRegressor(random_state=42)
+}
+
+#treinando modelos
+fig, axes = plt.subplots(ncols=2, nrows=2, figsize=(12,9))
+axes = axes.flatten()
+for idx, (name, model) in enumerate(models.items()):
+    model.fit(X_train, y_train)
+    y_pred_train = model.predict(X_train)
+    metrics_obj = Metrics(y_pred_train, y_train)
+    metrics_train = metrics_obj.metrics()
+    list_metrics.append(metrics_train)
+    print(f'metricas de treino [{name}]:', metrics_train)
+    
+    ax = axes[idx]
+    ax.set_title(f'{name} - IPCA real x previsto')
+    ax.plot(y_train, label='Real (train)', color='blue')
+    ax.plot(y_pred_train, label='Previsto (train)', color='red')
+    ax.legend()
+    
+plt.tight_layout()
+plt.show()
+
+# %%
+fig, axes = plt.subplots(ncols=2, nrows=2, figsize=(12,9))
+axes = axes.flatten()
+for idx, (name, model) in enumerate(models.items()):
+    model.fit(X_train, y_train)
+    y_pred_test = model.predict(X_test)
+    metrics_obj = Metrics(y_pred_test, y_test)
+    metrics_test = metrics_obj.metrics()
+    print(f'metricas de teste [{name}]:', metrics_test)
+
+    ax = axes[idx]
+    ax.set_title(f'{name} - IPCA real x previsto')
+    ax.plot(y_test, label='Real (test)', color='blue')
+    ax.plot(y_pred_test, label='Previsto (test)', color='red')
+    ax.legend()
+plt.tight_layout()
+plt.show()
+
+# %%
+
+"""" 
+    Mesmo parecendo um modelo mais simples comparado aos outros testados, o modelo de minimos quadrados se mostrou melhor em captar as variaçoes dos dados
+    Fiz testes como modelos do tipo ARMA e modelo de machine learning convencionais, e, mesmo com a diferença de robustez matematica e computacional, o OLS trouxe maior confiabilidade em suas previsoes
+    ainda com um R^2 baixo, porem, comum no tipo de dado que estamos trabalhando. Com isso, devo seguir com o estudo em cima desse modelo"""
+joblib.dump(model_ols, 'OLS.pkl')
+# %%
+plt.figure(figsize=(10,5))
+plt.title('Serie real - IPCA X previsto teste')
+plt.plot(y_test, label='IPCA', color='blue', marker='o', linestyle='none')
+plt.plot(y_pred, label='previsto', color='red', marker='o', linestyle='none')
+plt.tight_layout()
+plt.legend()
+plt.show()
 # %%
