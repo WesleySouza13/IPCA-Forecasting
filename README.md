@@ -1,14 +1,43 @@
 ## Estimação de valores para o sinal de IPCA aplicando métodos de Minimos Quadrados
 
-Este trabalho tem como objetivo avaliar o comportamento temporal da série do IPCA no Brasil, aplicando conceitos econométricos para a desconvolução e previsão do sinal. O estudo utiliza dados reais fornecidos pela API do SGS (Sistema Gerenciador de Séries Temporais), mantido pelo Banco Central do Brasil.
+Este trabalho tem como objetivo avaliar o comportamento temporal da série do IPCA no Brasil, aplicando conceitos econométricos para a desconvolução e a previsão do sinal. O estudo utiliza dados reais fornecidos pela API do SGS (Sistema Gerenciador de Séries Temporais), mantido pelo Banco Central do Brasil.
 
-A série do IPCA permite compreender as variações e o comportamento do índice de preços ao consumidor no país. Nesse contexto, torna-se relevante desenvolver um modelo capaz de prever, ou ao menos estimar, o comportamento desse indicador.
+A série do IPCA permite compreender as variações e o comportamento do índice de preços ao consumidor no país. Nesse contexto, torna-se relevante desenvolver um modelo capaz de prever, ou ao menos estimar, o comportamento futuro desse indicador, dado o seu papel central na formulação de políticas monetárias, na indexação de contratos e na tomada de decisão econômica.
 
-# Comportamento do Sinal
+Cálculo do IPCA
 
-Optou-se por trabalhar com a série temporal compreendida entre janeiro de 2000 e outubro de 2025, abrangendo aproximadamente 25 anos de dados. Essa faixa permite analisar o comportamento do índice diante de eventos econômicos e políticos significativos no Brasil, como impeachments, mudanças de governos, crises financeiras, pandemia e quedas na bolsa de valores, entre outros. Com base nesse contexto, é possível observar certa volatilidade na série, a qual será discutida ao longo deste estudo.
+O IPCA (Índice Nacional de Preços ao Consumidor Amplo) é calculado mensalmente pelo Instituto Brasileiro de Geografia e Estatística (IBGE) e representa a inflação oficial do país. O índice reflete a variação do custo de vida de famílias com rendimentos mensais entre 1 e 40 salários mínimos, residentes em áreas urbanas.
+
+O cálculo do IPCA baseia-se na coleta sistemática de preços de uma cesta representativa de bens e serviços, organizada em grandes grupos de consumo, tais como Alimentação e Bebidas, Habitação, Transportes, Saúde e Cuidados Pessoais, Educação, entre outros.
+
+De forma resumida, o processo de cálculo ocorre conforme as seguintes etapas:
+
+Definição da cesta de produtos e serviços
+O IBGE define a cesta de consumo a partir da Pesquisa de Orçamentos Familiares (POF), que identifica a estrutura de gastos das famílias brasileiras. Essa cesta é composta por nove grandes grupos de consumo, cujos itens representam os padrões médios de consumo da população-alvo.
+
+Coleta mensal de preços
+A coleta de preços é realizada mensalmente, geralmente entre os dias 1º e 30 de cada mês. Aproximadamente 430 mil preços são coletados em cerca de 30 mil estabelecimentos comerciais, domicílios e prestadores de serviços, distribuídos em 13 regiões metropolitanas e áreas urbanas do país.
+
+Cálculo das variações de preços
+Para cada item da cesta, calcula-se a variação percentual de preços em relação ao período anterior. Essas variações capturam os aumentos ou reduções observados nos preços ao consumidor.
+
+Ponderação dos itens
+As variações de preços são ponderadas de acordo com a importância relativa de cada item no orçamento das famílias, conforme definido pela POF. Grupos como Transportes e Habitação possuem pesos mais elevados, enquanto itens como Comunicação tendem a apresentar menor participação relativa.
+
+Cálculo da média ponderada
+A soma das variações ponderadas resulta no valor final do IPCA do período, que expressa a variação média do custo de vida da população considerada.
+
+Essa metodologia confere ao IPCA uma forte dependência temporal e estrutural, uma vez que o índice é resultado da agregação ponderada de múltiplos subcomponentes com dinâmicas próprias. Essa característica justifica o uso de modelos econométricos e de séries temporais para análise, decomposição e previsão do comportamento do índice ao longo do tempo.
 
 Estaremos explorando a coluna "valor", que será o alvo do estudo
+
+# Aplicação
+
+Para fins de visualização e utilização prática dos resultados obtidos, foi desenvolvida uma aplicação interativa que implementa o modelo econométrico proposto. A aplicação permite a análise do comportamento da série do IPCA e a exploração das previsões geradas pelo modelo de forma acessível e intuitiva.
+
+A aplicação encontra-se disponível publicamente no seguinte endereço:
+
+https://ipca-econometric-modeling-djh2hu2pv8xzkr7acuzg6a.streamlit.app/
 
 # Série:
 <img width="837" height="450" alt="image" src="https://github.com/user-attachments/assets/6b1c90fd-d1f7-4bb6-8b07-c21813c2a777" />
