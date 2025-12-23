@@ -85,15 +85,24 @@ Utilizei um atraso de 1 período para trabalhar nessa série, pois os demais tes
 Seguem as métricas do modelo:
 
 
-coef    std err          t      P>|t|      [0.025      0.975]
-------------------------------------------------------------------------------
-const          0.1866      0.029      6.487      0.000       0.130       0.243
-lag_1          0.6223      0.045     13.678      0.000       0.533       0.712
-==============================================================================
-Omnibus:                       87.113   Durbin-Watson:                   2.076
-Prob(Omnibus):                  0.000   Jarque-Bera (JB):              662.415
-Skew:                           0.954   Prob(JB):                    1.44e-144
-Kurtosis:                      10.038   Cond. No.                         3.29
+| Variável | Coeficiente | Erro Padrão | Estatística t | P-valor | IC 2.5% | IC 97.5% |
+| -------- | ----------- | ----------- | ------------- | ------- | ------- | -------- |
+| const    | 0.1866      | 0.029       | 6.487         | 0.000   | 0.130   | 0.243    |
+| lag_1    | 0.6223      | 0.045       | 13.678        | 0.000   | 0.533   | 0.712    |
+
+
+| Métrica          | Valor     |
+| ---------------- | --------- |
+| Omnibus          | 87.113    |
+| Prob (Omnibus)   | 0.000     |
+| Jarque-Bera (JB) | 662.415   |
+| Prob (JB)        | 1.44e-144 |
+| Skew             | 0.954     |
+| Kurtosis         | 10.038    |
+| Durbin-Watson    | 2.076     |
+| Cond. Number     | 3.29      |
+
+
 
 
 
