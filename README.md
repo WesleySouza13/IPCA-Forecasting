@@ -102,7 +102,7 @@ Seguem as métricas do modelo:
 | Durbin-Watson    | 2.076     |
 | Cond. Number     | 3.29      |
 
-
+Os coeficientes estimados são estatisticamente significativos, indicando que o atraso de um período possui forte influência sobre o valor atual da série, enquanto as estatísticas de diagnóstico sugerem ausência de autocorrelação relevante nos resíduos. Além disso, os testes de Omnibus e Jarque-Bera não são significativos para determinar a não normalidade dos resíduos.
 
 
 
